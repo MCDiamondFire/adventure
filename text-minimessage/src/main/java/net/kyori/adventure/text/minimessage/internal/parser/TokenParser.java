@@ -159,6 +159,8 @@ public final class TokenParser {
     final int length = message.length();
     for (int i = 0; i < length; i++) {
       final int codePoint = message.codePointAt(i);
+      // DiamondFire start
+      /*
       if (!lenient && codePoint == '§' && i + 1 < length) {
         final int nextChar = Character.toLowerCase(message.codePointAt(i + 1));
         // Only throw an exception if the next character is actually going to make a legacy color code
@@ -175,6 +177,8 @@ public final class TokenParser {
           );
         }
       }
+      */
+      // DiamondFire end
 
       if (!Character.isBmpCodePoint(codePoint)) {
         i++;
