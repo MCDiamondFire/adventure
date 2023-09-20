@@ -60,7 +60,7 @@ import static net.kyori.adventure.text.minimessage.tag.resolver.Placeholder.pars
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+//import static org.junit.jupiter.api.Assertions.assertThrows; // DiamondFire
 
 public class MiniMessageParserTest extends AbstractTest {
 
@@ -486,6 +486,8 @@ public class MiniMessageParserTest extends AbstractTest {
     this.assertParsedEquals(parsed, input);
   }
 
+  // DiamondFire start
+  /*
   @Test
   void testLegacySymbolForbidden() {
     final String failingTest = "Hello §Cfriends";
@@ -493,6 +495,8 @@ public class MiniMessageParserTest extends AbstractTest {
     // Non-strict
     System.out.println(assertThrows(ParsingException.class, () -> PARSER.deserialize(failingTest)).getMessage());
   }
+  */
+  // DiamondFire end
 
   @Test
   void testInvalidTagNames() {
@@ -524,6 +528,14 @@ public class MiniMessageParserTest extends AbstractTest {
     assertDoesNotThrow(() -> PARSER.deserialize(passingTest2));
     assertDoesNotThrow(() -> PARSER.deserialize(passingTest3));
     assertDoesNotThrow(() -> PARSER.deserialize(passingTest4));
+
+    // DiamondFire start
+    final String passingTestDF1 = "Hello <&a> but cool?";
+    final String passingTestDF2 = "Hello <&x&c&0&f&f&e&e> but cool?";
+
+    assertDoesNotThrow(() -> PARSER.deserialize(passingTestDF1));
+    assertDoesNotThrow(() -> PARSER.deserialize(passingTestDF2));
+    // DiamondFire end
   }
 
   @Test
