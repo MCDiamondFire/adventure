@@ -47,6 +47,18 @@ import net.kyori.examination.Examinable;
 import net.kyori.examination.string.MultiLineStringExaminer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+// DiamondFire start
+// CHECKSTYLE:OFF
+import java.lang.reflect.Constructor;
+import java.util.Collections;
+import java.util.Map;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
+// CHECKSTYLE:ON
+// DiamondFire end
 
 final class MiniMessageParser {
   final TagResolver tagResolver;
@@ -55,10 +67,23 @@ final class MiniMessageParser {
 
   static {
     try {
-      final Class<?> clazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
-      final java.lang.reflect.Method method = clazz.getDeclaredMethod("createDirect", String.class);
-      method.setAccessible(true);
-      empty = (Component) method.invoke(null, "");
+      // Create a new instance of empty style
+      final Class<?> sClazz = Class.forName("net.kyori.adventure.text.format.StyleImpl");
+      final Constructor<?> sConstructor = sClazz.getDeclaredConstructor(
+        Key.class,
+        TextColor.class,
+        Map.class,
+        ClickEvent.class,
+        HoverEvent.class,
+        String.class
+      );
+      sConstructor.setAccessible(true);
+      final Style style = (Style) sConstructor.newInstance(null, null, Collections.emptyMap(), null, null, null);
+      // Create a new instance of empty component
+      final Class<?> tClazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
+      final Constructor<?> tConstructor = tClazz.getDeclaredConstructor(List.class, Style.class, String.class);
+      tConstructor.setAccessible(true);
+      empty = (Component) tConstructor.newInstance(Collections.emptyList(), style, "");
     } catch (final Exception e) {
       // i know this is absolutely horrendous but please forgive me
     }

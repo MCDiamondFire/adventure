@@ -17,7 +17,10 @@ tasks.checkstyleJmh {
 // DiamondFire start
 spotless {
   java {
-    targetExclude("**/EmptyNode.java")
+    targetExclude(
+      "**/EmptyNode.java",
+      "**/MiniMessageParser.java"
+    )
   }
 }
 // DiamondFire end
