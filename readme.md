@@ -5,6 +5,7 @@ A fork of [Adventure](https://github.com/KyoriPowered/adventure) for DiamondFire
 ### MiniMessage
 - Allows `&` character to be used in tag names
 - Removes the forced check for legacy color codes
+- Adds an empty component at the end of the tree if the tag is explicitly closed
 
 ## Attributions
 Adventure is an open source project under [MIT License](https://github.com/KyoriPowered/adventure/blob/main/4/license.txt).

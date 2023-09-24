@@ -14,6 +14,13 @@ dependencies {
 tasks.checkstyleJmh {
   exclude("**")
 }
+// DiamondFire start
+spotless {
+  java {
+    targetExclude("**/EmptyNode.java")
+  }
+}
+// DiamondFire end
 
 tasks.javadoc {
   exclude("net/kyori/adventure/text/minimessage/internal/**")

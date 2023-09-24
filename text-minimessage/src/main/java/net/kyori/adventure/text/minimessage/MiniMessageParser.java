@@ -50,6 +50,20 @@ import org.jetbrains.annotations.Nullable;
 
 final class MiniMessageParser {
   final TagResolver tagResolver;
+  // DiamondFire start
+  static Component empty;
+
+  static {
+    try {
+      final Class<?> clazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
+      final java.lang.reflect.Method method = clazz.getDeclaredMethod("createDirect", String.class);
+      method.setAccessible(true);
+      empty = (Component) method.invoke(null, "");
+    } catch (final Exception e) {
+      // i know this is absolutely horrendous but please forgive me
+    }
+  }
+  // DiamondFire end
 
   MiniMessageParser() {
     this.tagResolver = TagResolver.standard();
@@ -215,6 +229,10 @@ final class MiniMessageParser {
     Tag tag = null;
     if (node instanceof ValueNode) {
       comp = Component.text(((ValueNode) node).value());
+    // DiamondFire start
+    } else if (node instanceof net.kyori.adventure.text.minimessage.internal.parser.node.EmptyNode) {
+      comp = empty;
+    // DiamondFire end
     } else if (node instanceof TagNode) {
       final TagNode tagNode = (TagNode) node;
 
