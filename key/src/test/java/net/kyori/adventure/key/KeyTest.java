@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -65,6 +65,13 @@ class KeyTest {
   void testStringRepresentation() {
     assertEquals("minecraft:empty", Key.key("empty").asString());
     assertEquals("minecraft:empty", Key.key("empty").toString());
+  }
+
+  @Test
+  void testAsMinimalString() {
+    assertEquals("empty", Key.key("empty").asMinimalString());
+    assertEquals("empty", Key.key(Key.MINECRAFT_NAMESPACE, "empty").asMinimalString());
+    assertEquals("adventure:empty", Key.key("adventure", "empty").asMinimalString());
   }
 
   @Test

@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -38,6 +39,7 @@ import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.pointer.Pointer;
 import net.kyori.adventure.pointer.Pointers;
+import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
@@ -197,6 +199,26 @@ public interface ForwardingAudience extends Audience {
   @Override
   default void openBook(final @NotNull Book book) {
     for (final Audience audience : this.audiences()) audience.openBook(book);
+  }
+
+  @Override
+  default void sendResourcePacks(final @NotNull ResourcePackRequest request) {
+    for (final Audience audience : this.audiences()) audience.sendResourcePacks(request);
+  }
+
+  @Override
+  default void removeResourcePacks(final @NotNull Iterable<UUID> ids) {
+    for (final Audience audience : this.audiences()) audience.removeResourcePacks(ids);
+  }
+
+  @Override
+  default void removeResourcePacks(final @NotNull UUID id, final @NotNull UUID @NotNull ... others) {
+    for (final Audience audience : this.audiences()) audience.removeResourcePacks(id, others);
+  }
+
+  @Override
+  default void clearResourcePacks() {
+    for (final Audience audience : this.audiences()) audience.clearResourcePacks();
   }
 
   /**
@@ -360,6 +382,26 @@ public interface ForwardingAudience extends Audience {
     @Override
     default void openBook(final @NotNull Book book) {
       this.audience().openBook(book);
+    }
+
+    @Override
+    default void sendResourcePacks(final @NotNull ResourcePackRequest request) {
+      this.audience().sendResourcePacks(request.callback(Audiences.unwrapCallback(this, this.audience(), request.callback())));
+    }
+
+    @Override
+    default void removeResourcePacks(final @NotNull Iterable<UUID> ids) {
+      this.audience().removeResourcePacks(ids);
+    }
+
+    @Override
+    default void removeResourcePacks(final @NotNull UUID id, final @NotNull UUID @NotNull ... others) {
+      this.audience().removeResourcePacks(id, others);
+    }
+
+    @Override
+    default void clearResourcePacks() {
+      this.audience().clearResourcePacks();
     }
   }
 }

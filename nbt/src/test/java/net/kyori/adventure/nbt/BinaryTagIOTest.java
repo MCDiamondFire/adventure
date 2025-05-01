@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -59,5 +59,15 @@ class BinaryTagIOTest {
     final ByteArrayOutputStream output = new ByteArrayOutputStream();
     BinaryTagIO.writer().write(tag, output, BinaryTagIO.Compression.ZLIB);
     assertEquals(tag, BinaryTagIO.reader().read(new ByteArrayInputStream(output.toByteArray()), BinaryTagIO.Compression.ZLIB));
+  }
+
+  @Test
+  void testNamelessWriteAndReadNoCompression() throws IOException {
+    final CompoundBinaryTag tag = CompoundBinaryTag.builder()
+      .putString("name", "test")
+      .build();
+    final ByteArrayOutputStream output = new ByteArrayOutputStream();
+    BinaryTagIO.writer().writeNameless(tag, output);
+    assertEquals(tag, BinaryTagIO.reader().readNameless(new ByteArrayInputStream(output.toByteArray())));
   }
 }

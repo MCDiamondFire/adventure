@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -382,7 +382,7 @@ public interface Sound extends Examinable {
     @NotNull Builder volume(final @Range(from = 0, to = Integer.MAX_VALUE) float volume);
 
     /**
-     * The volume for this sound, indicating how far away it can be heard.
+     * The pitch for this sound, indicating how high or low the sound can be heard.
      *
      * <p>Default value is {@code 1}.</p>
      *

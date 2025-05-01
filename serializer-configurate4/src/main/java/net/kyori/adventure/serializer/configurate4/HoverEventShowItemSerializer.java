@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,10 +23,14 @@
  */
 package net.kyori.adventure.serializer.configurate4;
 
+import io.leangen.geantyref.TypeToken;
 import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.nbt.api.BinaryTagHolder;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.serializer.commons.ComponentTreeConstants;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.configurate.ConfigurationNode;
@@ -36,23 +40,30 @@ import org.spongepowered.configurate.serialize.TypeSerializer;
 final class HoverEventShowItemSerializer implements TypeSerializer<HoverEvent.ShowItem> {
   static final HoverEventShowItemSerializer INSTANCE = new HoverEventShowItemSerializer();
 
-  static final String ID = "id";
-  static final String COUNT = "count";
-  static final String TAG = "tag";
+  private static final TypeToken<Map<Key, ConfigurateDataComponentValue>> COMPONENT_MAP_TYPE = new TypeToken<Map<Key, ConfigurateDataComponentValue>>() {
+  };
 
   private HoverEventShowItemSerializer() {
   }
 
   @Override
   public HoverEvent.ShowItem deserialize(final @NotNull Type type, final @NotNull ConfigurationNode value) throws SerializationException {
-    final Key id = value.node(ID).get(Key.class);
+    final Key id = value.node(ComponentTreeConstants.SHOW_ITEM_ID).get(Key.class);
     if (id == null) {
       throw new SerializationException("An id is required to deserialize the show_item hover event");
     }
-    final int count = value.node(COUNT).getInt(1);
-    final String tag = value.node(TAG).getString();
+    final int count = value.node(ComponentTreeConstants.SHOW_ITEM_COUNT).getInt(1);
+    final ConfigurationNode components = value.node(ComponentTreeConstants.SHOW_ITEM_COMPONENTS);
+    if (!components.virtual()) {
+      final Map<Key, ConfigurateDataComponentValue> componentsMap = components.require(COMPONENT_MAP_TYPE);
 
-    return HoverEvent.ShowItem.showItem(id, count, tag == null ? null : BinaryTagHolder.binaryTagHolder(tag));
+      return HoverEvent.ShowItem.showItem(id, count, new HashMap<>(componentsMap));
+    } else {
+      // legacy (pre-1.20.5)
+      @SuppressWarnings("deprecation")
+      final String tag = value.node(ComponentTreeConstants.SHOW_ITEM_TAG).getString();
+      return HoverEvent.ShowItem.showItem(id, count, tag == null ? null : BinaryTagHolder.binaryTagHolder(tag));
+    }
   }
 
   @Override
@@ -62,13 +73,18 @@ final class HoverEventShowItemSerializer implements TypeSerializer<HoverEvent.Sh
       return;
     }
 
-    value.node(ID).set(Key.class, obj.item());
-    value.node(COUNT).set(obj.count());
+    value.node(ComponentTreeConstants.SHOW_ITEM_ID).set(Key.class, obj.item());
+    value.node(ComponentTreeConstants.SHOW_ITEM_COUNT).set(obj.count());
 
-    if (obj.nbt() == null) {
-      value.node(TAG).set(null);
+    if (!obj.dataComponents().isEmpty()) {
+      value.node(ComponentTreeConstants.SHOW_ITEM_TAG).set(null);
+      value.node(ComponentTreeConstants.SHOW_ITEM_COMPONENTS).set(COMPONENT_MAP_TYPE, obj.dataComponentsAs(ConfigurateDataComponentValue.class));
+    } else if (obj.nbt() != null) {
+      // legacy (pre-1.20.5)
+      value.node(ComponentTreeConstants.SHOW_ITEM_COMPONENTS).set(null);
+      value.node(ComponentTreeConstants.SHOW_ITEM_TAG).set(obj.nbt().string());
     } else {
-      value.node(TAG).set(obj.nbt().string());
+      value.node(ComponentTreeConstants.SHOW_ITEM_COMPONENTS).set(null);
     }
   }
 }

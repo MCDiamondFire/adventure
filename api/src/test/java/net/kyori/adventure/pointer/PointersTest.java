@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -64,5 +64,30 @@ final class PointersTest {
     assertTrue(p2.supports(pointer));
     assertEquals("test", p2.getOrDefault(pointer, null));
     assertEquals("tset", p2.getOrDefault(pointer, null)); // make sure the value does change
+  }
+
+  @Test
+  public void ofPointersSuppliers() {
+    final Pointer<String> p0 = Pointer.pointer(String.class, Key.key("adventure:test1"));
+    final Pointer<String> p1 = Pointer.pointer(String.class, Key.key("adventure:test2"));
+
+    final PointersSupplier<Object> parent = PointersSupplier.builder()
+      .resolving(p0, (object) -> "0")
+      .build();
+    final PointersSupplier<Integer> child = PointersSupplier.<Integer>builder()
+      .parent(parent)
+      .resolving(p1, (object) -> "1")
+      .build();
+
+    assertTrue(child.supports(p0));
+    assertTrue(child.supports(p1));
+
+    final Pointers childPointers = child.view(10);
+    assertEquals("0", childPointers.get(p0).get());
+    assertEquals("1", childPointers.get(p1).get());
+
+    final Pointers rebuilt = childPointers.toBuilder().withStatic(p0, "1").build();
+    assertEquals("1", rebuilt.get(p0).get());
+    assertEquals("1", rebuilt.get(p1).get());
   }
 }

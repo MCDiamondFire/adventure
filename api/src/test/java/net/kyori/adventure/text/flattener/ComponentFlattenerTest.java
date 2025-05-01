@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,6 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ComponentFlattenerTest {
-
   static class TrackingFlattener implements FlattenerListener {
     int pushCount;
     int popCount;
@@ -88,8 +87,27 @@ class ComponentFlattenerTest {
     }
   }
 
+  static class CancellingFlattener extends TrackingFlattener {
+    int maxCount;
+
+    CancellingFlattener(final int maxCount) {
+      this.maxCount = maxCount;
+    }
+
+    @Override
+    public boolean shouldContinue() {
+      return this.strings.size() < this.maxCount;
+    }
+  }
+
   private TrackingFlattener testFlatten(final ComponentFlattener flattener, final Component toFlatten) {
     final TrackingFlattener listener = new TrackingFlattener();
+    flattener.flatten(toFlatten, listener);
+    return listener;
+  }
+
+  private CancellingFlattener testCancellingFlatten(final ComponentFlattener flattener, final Component toFlatten, final int maxCount) {
+    final CancellingFlattener listener = new CancellingFlattener(maxCount);
     flattener.flatten(toFlatten, listener);
     return listener;
   }
@@ -193,6 +211,14 @@ class ComponentFlattenerTest {
   }
 
   @Test
+  void testVirtualComponent() {
+    this.testFlatten(ComponentFlattener.basic(), Component.virtual(Object.class, context -> Component.text("test123")))
+      .assertBalanced()
+      .assertPushesAndPops(1)
+      .assertContents(""); // cannot get rendered value as we don't have a context available
+  }
+
+  @Test
   void testCustomHandler() {
     final ComponentFlattener customized = ComponentFlattener.basic()
       .toBuilder()
@@ -248,5 +274,18 @@ class ComponentFlattenerTest {
     assertThrows(IllegalArgumentException.class, () -> builder.mapper(Component.class, $ -> ""));
     // complex supertype
     assertThrows(IllegalArgumentException.class, () -> builder.complexMapper(Component.class, ($, $$) -> {}));
+  }
+
+  @Test
+  void testEarlyExit() {
+    final Component component = Component.text("Hello")
+      .append(Component.text("How are you?")
+        .append(Component.text("Not great")
+          .append(Component.text("Goodbye"))));
+
+    this.testCancellingFlatten(ComponentFlattener.basic(), component, 3)
+      .assertBalanced()
+      .assertPushesAndPops(3)
+      .assertContents("Hello", "How are you?", "Not great");
   }
 }

@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -162,7 +162,7 @@ final class BossBarImpl extends HackyBossBarPlatformBridge implements BossBar {
 
   @Override
   public @NotNull BossBar flags(final @NotNull Set<Flag> newFlags) {
-    if (newFlags.isEmpty()) {
+    if (newFlags.isEmpty() && !this.flags.isEmpty()) {
       final Set<Flag> oldFlags = EnumSet.copyOf(this.flags);
       this.flags.clear();
       this.forEachListener(listener -> listener.bossBarFlagsChanged(this, Collections.emptySet(), oldFlags));

@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -63,7 +63,9 @@ public final class StandardTags {
         TransitionTag.RESOLVER,
         SelectorTag.RESOLVER,
         ScoreTag.RESOLVER,
-        NbtTag.RESOLVER
+        NbtTag.RESOLVER,
+        PrideTag.RESOLVER,
+        ShadowColorTag.RESOLVER
       )
       .build();
 
@@ -262,6 +264,28 @@ public final class StandardTags {
    */
   public static @NotNull TagResolver nbt() {
     return NbtTag.RESOLVER;
+  }
+
+  /**
+   * Get a resolver for the {@value PrideTag#PRIDE} tag.
+   *
+   * @return a resolver for the {@value PrideTag#PRIDE} tag
+   * @since 4.18.0
+   */
+  public static @NotNull TagResolver pride() {
+    return PrideTag.RESOLVER;
+  }
+
+  /**
+   * Get a resolver for the {@value ShadowColorTag#SHADOW_COLOR} tags.
+   *
+   * <p>This tag support both hex string</p>
+   *
+   * @return a resolver for the {@value ShadowColorTag#SHADOW_COLOR} tags
+   * @since 4.18.0
+   */
+  public static @NotNull TagResolver shadowColor() {
+    return ShadowColorTag.RESOLVER;
   }
 
   /**

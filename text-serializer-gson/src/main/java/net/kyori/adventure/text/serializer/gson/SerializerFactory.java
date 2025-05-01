@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,14 +27,19 @@ import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
 import com.google.gson.reflect.TypeToken;
+import java.util.UUID;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.BlockNBTComponent;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TranslationArgument;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.ShadowColor;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
+import net.kyori.adventure.text.serializer.json.JSONOptions;
+import net.kyori.option.OptionState;
 import org.jetbrains.annotations.Nullable;
 
 final class SerializerFactory implements TypeAdapterFactory {
@@ -48,17 +53,18 @@ final class SerializerFactory implements TypeAdapterFactory {
   static final Class<String> STRING_TYPE = String.class;
   static final Class<TextColorWrapper> COLOR_WRAPPER_TYPE = TextColorWrapper.class;
   static final Class<TextColor> COLOR_TYPE = TextColor.class;
+  static final Class<ShadowColor> SHADOW_COLOR_TYPE = ShadowColor.class;
   static final Class<TextDecoration> TEXT_DECORATION_TYPE = TextDecoration.class;
   static final Class<BlockNBTComponent.Pos> BLOCK_NBT_POS_TYPE = BlockNBTComponent.Pos.class;
+  static final Class<UUID> UUID_TYPE = UUID.class;
+  static final Class<TranslationArgument> TRANSLATION_ARGUMENT_TYPE = TranslationArgument.class;
 
-  private final boolean downsampleColors;
+  private final OptionState features;
   private final net.kyori.adventure.text.serializer.json.LegacyHoverEventSerializer legacyHoverSerializer;
-  private final boolean emitLegacyHover;
 
-  SerializerFactory(final boolean downsampleColors, final net.kyori.adventure.text.serializer.json.@Nullable LegacyHoverEventSerializer legacyHoverSerializer, final boolean emitLegacyHover) {
-    this.downsampleColors = downsampleColors;
+  SerializerFactory(final OptionState features, final net.kyori.adventure.text.serializer.json.@Nullable LegacyHoverEventSerializer legacyHoverSerializer) {
+    this.features = features;
     this.legacyHoverSerializer = legacyHoverSerializer;
-    this.emitLegacyHover = emitLegacyHover;
   }
 
   @Override
@@ -66,27 +72,33 @@ final class SerializerFactory implements TypeAdapterFactory {
   public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
     final Class<? super T> rawType = type.getRawType();
     if (COMPONENT_TYPE.isAssignableFrom(rawType)) {
-      return (TypeAdapter<T>) ComponentSerializerImpl.create(gson);
+      return (TypeAdapter<T>) ComponentSerializerImpl.create(this.features, gson);
     } else if (KEY_TYPE.isAssignableFrom(rawType)) {
       return (TypeAdapter<T>) KeySerializer.INSTANCE;
     } else if (STYLE_TYPE.isAssignableFrom(rawType)) {
-      return (TypeAdapter<T>) StyleSerializer.create(this.legacyHoverSerializer, this.emitLegacyHover, gson);
+      return (TypeAdapter<T>) StyleSerializer.create(this.legacyHoverSerializer, this.features, gson);
     } else if (CLICK_ACTION_TYPE.isAssignableFrom(rawType)) {
       return (TypeAdapter<T>) ClickEventActionSerializer.INSTANCE;
     } else if (HOVER_ACTION_TYPE.isAssignableFrom(rawType)) {
       return (TypeAdapter<T>) HoverEventActionSerializer.INSTANCE;
     } else if (SHOW_ITEM_TYPE.isAssignableFrom(rawType)) {
-      return (TypeAdapter<T>) ShowItemSerializer.create(gson);
+      return (TypeAdapter<T>) ShowItemSerializer.create(gson, this.features);
     } else if (SHOW_ENTITY_TYPE.isAssignableFrom(rawType)) {
-      return (TypeAdapter<T>) ShowEntitySerializer.create(gson);
+      return (TypeAdapter<T>) ShowEntitySerializer.create(gson, this.features);
     } else if (COLOR_WRAPPER_TYPE.isAssignableFrom(rawType)) {
       return (TypeAdapter<T>) TextColorWrapper.Serializer.INSTANCE;
     } else if (COLOR_TYPE.isAssignableFrom(rawType)) {
-      return (TypeAdapter<T>) (this.downsampleColors ? TextColorSerializer.DOWNSAMPLE_COLOR : TextColorSerializer.INSTANCE);
+      return (TypeAdapter<T>) (this.features.value(JSONOptions.EMIT_RGB) ? TextColorSerializer.INSTANCE : TextColorSerializer.DOWNSAMPLE_COLOR);
+    } else if (SHADOW_COLOR_TYPE.isAssignableFrom(rawType)) {
+      return (TypeAdapter<T>) ShadowColorSerializer.create(this.features);
     } else if (TEXT_DECORATION_TYPE.isAssignableFrom(rawType)) {
       return (TypeAdapter<T>) TextDecorationSerializer.INSTANCE;
     } else if (BLOCK_NBT_POS_TYPE.isAssignableFrom(rawType)) {
       return (TypeAdapter<T>) BlockNBTComponentPosSerializer.INSTANCE;
+    } else if (UUID_TYPE.isAssignableFrom(rawType)) {
+      return (TypeAdapter<T>) UUIDSerializer.uuidSerializer(this.features);
+    } else if (TRANSLATION_ARGUMENT_TYPE.isAssignableFrom(rawType)) {
+      return (TypeAdapter<T>) TranslationArgumentSerializer.create(gson);
     } else {
       return null;
     }

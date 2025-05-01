@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -556,5 +556,14 @@ public class MiniMessageParserTest extends AbstractTest {
     };
 
     this.assertParsedEquals(expected, input, alwaysMatchingResolver);
+  }
+
+  // https://github.com/KyoriPowered/adventure/issues/1011
+  @Test
+  void testNonTerminatingQuoteArgument() {
+    final String input = "<hover:show_text_:\">";
+    final Component expected = Component.text(input);
+
+    this.assertParsedEquals(expected, input);
   }
 }

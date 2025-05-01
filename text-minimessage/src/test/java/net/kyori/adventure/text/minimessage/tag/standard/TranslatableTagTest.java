@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -54,7 +54,7 @@ class TranslatableTagTest extends AbstractTest {
 
     final Component translatable = Component.translatable()
       .key("some_key")
-      .args(text(":arg' 1", NamedTextColor.RED), text("arg 2", NamedTextColor.BLUE))
+      .arguments(text(":arg' 1", NamedTextColor.RED), text("arg 2", NamedTextColor.BLUE))
       .build();
 
     this.assertSerializedEquals(expected, translatable);

@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -110,6 +110,7 @@ public abstract class BinaryTagType<T extends BinaryTag> implements Predicate<Bi
    * A binary tag reader.
    *
    * @param <T> the tag type
+   * @since 4.0.0
    */
   interface Reader<T extends BinaryTag> {
     @NotNull T read(final @NotNull DataInput input) throws IOException;
@@ -119,6 +120,7 @@ public abstract class BinaryTagType<T extends BinaryTag> implements Predicate<Bi
    * A binary tag writer.
    *
    * @param <T> the tag type
+   * @since 4.0.0
    */
   interface Writer<T extends BinaryTag> {
     void write(final @NotNull T tag, final @NotNull DataOutput output) throws IOException;

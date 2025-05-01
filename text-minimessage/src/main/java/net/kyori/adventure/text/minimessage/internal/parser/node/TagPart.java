@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -104,6 +104,11 @@ public final class TagPart implements Tag.Argument {
     }
     if (lastChar == '\'' || lastChar == '"') {
       endIndex--;
+    }
+
+    if (startIndex > endIndex) {
+      // We were given only a single quote that doesn't terminate, we can't unescape it
+      return text.substring(start, end);
     }
 
     return TokenParser.unescape(text, startIndex, endIndex, i -> i == firstChar || i == TokenParser.ESCAPE);

@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,13 @@
  */
 package net.kyori.adventure.audience;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
@@ -36,6 +41,10 @@ import net.kyori.adventure.identity.Identified;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.pointer.Pointered;
+import net.kyori.adventure.resource.ResourcePackInfo;
+import net.kyori.adventure.resource.ResourcePackInfoLike;
+import net.kyori.adventure.resource.ResourcePackRequest;
+import net.kyori.adventure.resource.ResourcePackRequestLike;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.SoundStop;
 import net.kyori.adventure.text.Component;
@@ -52,12 +61,14 @@ import org.jetbrains.annotations.NotNull;
  * command sender, console, or otherwise who can receive text, titles,
  * boss bars, and other Minecraft media. It is also designed for a group of
  * receivers such as a team, server, world, or permission.</p>
+ *
  * <p>In the past, Minecraft platforms have typically reserved methods such as
  * <code>showTitle</code> for a <code>Player</code> interface. While this is good
  * textbook object-oriented design, it presents two key drawbacks: 1) there
  * is no abstraction for groups of players, such as a <code>Server</code> or a
  * <code>Team</code> and 2) it add boilerplate for handling special cases like
  * console or command senders.</p>
+ *
  * <p>Consider the use-case of sending a message and title to every player on a
  * server, and also sending a message to console. Without an <code>Audience</code>,
  * the code might look like this:</p>
@@ -68,6 +79,7 @@ import org.jetbrains.annotations.NotNull;
  *     player.showTitle(...);
  *   }
  *   server.getConsole().sendMessage(...);</pre>
+ *
  * <p>Now, if <code>Server</code> implemented <code>Audience</code>, its unified interface
  * would allow users to easily send media without if-guarding console or
  * iterating through the list of players:</p>
@@ -75,10 +87,12 @@ import org.jetbrains.annotations.NotNull;
  *   Server server;
  *   server.sendMessage(...); // Sends a message to players and console
  *   server.showTitle(...); // Shows a title to players, silently ignored by console</pre>
+ *
  * <p>When an <code>Audience</code> is unable to perform an operation, such as sending
  * a boss bar to console, it will silently fail, without logging. This
  * requirement allows users to easily send media to a group of
  * <code>Audience</code>s without checking each for compatibility.</p>
+ *
  * <p>While the scope of <code>Audience</code> may be expanded in the future to support
  * new Minecraft media such as the player list, its interface will remain stateless
  * and any new methods will be stubbed by default.</p>
@@ -699,5 +713,153 @@ public interface Audience extends Pointered {
    * @since 4.0.0
    */
   default void openBook(final @NotNull Book book) {
+  }
+
+  // ------------------------
+  // ---- Resource Packs ----
+  // ------------------------
+
+  /**
+   * Sends a request to apply resource packs to this audience.
+   *
+   * <p>Multiple resource packs are only supported since 1.20.3. On older versions, all requests behave as if {@link ResourcePackRequest#replace()} is set to {@code true}.</p>
+   *
+   * @param first the resource pack info
+   * @param others the other pack infos
+   * @see ResourcePackRequest#addingRequest(ResourcePackInfoLike, ResourcePackInfoLike...)
+   * @since 4.15.0
+   */
+  @ForwardingAudienceOverrideNotRequired
+  default void sendResourcePacks(final @NotNull ResourcePackInfoLike first, final @NotNull ResourcePackInfoLike... others) {
+    this.sendResourcePacks(ResourcePackRequest.addingRequest(first, others));
+  }
+
+  /**
+   * Sends a request to apply resource packs to this audience.
+   *
+   * <p>Multiple resource packs are only supported since 1.20.3. On older versions, all requests behave as if {@link ResourcePackRequest#replace()} is set to {@code true}.</p>
+   *
+   * @param request the resource pack request
+   * @see ResourcePackInfo
+   * @since 4.15.0
+   */
+  @ForwardingAudienceOverrideNotRequired
+  default void sendResourcePacks(final @NotNull ResourcePackRequestLike request) {
+    this.sendResourcePacks(request.asResourcePackRequest());
+  }
+
+  /**
+   * Sends a request to apply resource packs to this audience.
+   *
+   * <p>Multiple resource packs are only supported since 1.20.3. On older versions, all requests behave as if {@link ResourcePackRequest#replace()} is set to {@code true}.</p>
+   *
+   * @param request the resource pack request
+   * @see ResourcePackInfo
+   * @since 4.15.0
+   */
+  default void sendResourcePacks(final @NotNull ResourcePackRequest request) {
+  }
+
+  /**
+   * Clear resource packs with the IDs used in the provided requests if they are present.
+   *
+   * @param request the request used to originally apply the packs
+   * @since 4.15.0
+   * @sinceMinecraft 1.20.3
+   */
+  @ForwardingAudienceOverrideNotRequired
+  default void removeResourcePacks(final @NotNull ResourcePackRequestLike request) {
+    this.removeResourcePacks(request.asResourcePackRequest());
+  }
+
+  /**
+   * Clear resource packs with the IDs used in the provided requests if they are present.
+   *
+   * @param request the request used to originally apply the packs
+   * @since 4.15.0
+   * @sinceMinecraft 1.20.3
+   */
+  @ForwardingAudienceOverrideNotRequired
+  default void removeResourcePacks(final @NotNull ResourcePackRequest request) {
+    final List<ResourcePackInfo> infos = request.packs();
+    if (infos.size() == 1) {
+      this.removeResourcePacks(infos.get(0).id());
+    } else if (infos.isEmpty()) {
+      return;
+    }
+
+    final UUID[] otherReqs = new UUID[infos.size() - 1];
+    for (int i = 0; i < otherReqs.length; i++) {
+      otherReqs[i] = infos.get(i + 1).id();
+    }
+    this.removeResourcePacks(infos.get(0).id(), otherReqs);
+  }
+
+  /**
+   * Clear resource packs with the IDs used in the provided requests if they are present.
+   *
+   * @param request the first request used to originally apply the pack
+   * @param others requests for other packs that should be removed
+   * @since 4.15.0
+   * @sinceMinecraft 1.20.3
+   */
+  @ForwardingAudienceOverrideNotRequired
+  default void removeResourcePacks(final @NotNull ResourcePackInfoLike request, final @NotNull ResourcePackInfoLike @NotNull... others) {
+    final UUID[] otherReqs = new UUID[others.length];
+    for (int i = 0; i < others.length; i++) {
+      otherReqs[i] = others[i].asResourcePackInfo().id();
+    }
+    this.removeResourcePacks(request.asResourcePackInfo().id(), otherReqs);
+  }
+
+  /**
+   * Clear resource packs with the provided ids if they are present.
+   *
+   * @param ids the ids of resource packs to remove
+   * @since 4.16.0
+   * @sinceMinecraft 1.20.3
+   */
+  default void removeResourcePacks(final @NotNull Iterable<UUID> ids) {
+    // break these out to id + arrays
+    final Iterator<UUID> it = ids.iterator();
+    if (!it.hasNext()) return;
+
+    final UUID id = it.next();
+    final UUID[] others;
+    if (!it.hasNext()) {
+      others = new UUID[0];
+    } else if (ids instanceof Collection<?>) {
+      others = new UUID[((Collection<UUID>) ids).size() - 1];
+      for (int i = 0; i < others.length; i++) {
+        others[i] = it.next();
+      }
+    } else {
+      final List<UUID> othersList = new ArrayList<>();
+      while (it.hasNext()) {
+        othersList.add(it.next());
+      }
+      others = othersList.toArray(new UUID[0]);
+    }
+
+    this.removeResourcePacks(id, others);
+  }
+
+  /**
+   * Clear resource packs with the provided ids if they are present.
+   *
+   * @param id the id
+   * @param others the ids of any additional resource packs
+   * @since 4.15.0
+   * @sinceMinecraft 1.20.3
+   */
+  default void removeResourcePacks(final @NotNull UUID id, final @NotNull UUID@NotNull... others) {
+  }
+
+  /**
+   * Clear all server-provided resource packs that have been sent to this user.
+   *
+   * @since 4.15.0
+   */
+  default void clearResourcePacks() {
   }
 }

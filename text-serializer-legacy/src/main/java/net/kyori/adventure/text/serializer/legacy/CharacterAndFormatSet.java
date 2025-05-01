@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,11 +42,35 @@ final class CharacterAndFormatSet {
     final StringBuilder characters = new StringBuilder(size);
     for (int i = 0; i < size; i++) {
       final CharacterAndFormat pair = pairs.get(i);
-      characters.append(pair.character());
+      final char character = pair.character();
       final TextFormat format = pair.format();
+      final boolean formatIsTextColor = format instanceof TextColor;
+
+      // First, add the "standard" character.
+      characters.append(character);
       formats.add(format);
-      if (format instanceof TextColor) {
+      if (formatIsTextColor) {
         colors.add((TextColor) format);
+      }
+
+      // If the character is case-insensitive, we need to add the other character too.
+      if (pair.caseInsensitive()) {
+        boolean added = false;
+
+        if (Character.isUpperCase(character)) {
+          characters.append(Character.toLowerCase(character));
+          added = true;
+        } else if (Character.isLowerCase(character)) {
+          characters.append(Character.toUpperCase(character));
+          added = true;
+        }
+
+        if (added) {
+          formats.add(format);
+          if (formatIsTextColor) {
+            colors.add((TextColor) format);
+          }
+        }
       }
     }
     if (formats.size() != characters.length()) {

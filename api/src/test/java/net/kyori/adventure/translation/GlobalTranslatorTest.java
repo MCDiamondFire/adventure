@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -103,6 +103,14 @@ class GlobalTranslatorTest {
     );
   }
 
+  @Test
+  void letTransChildrenLive() {
+    final Component input = Component.translatable("test.1")
+      .append(Component.translatable("test.2"));
+    GlobalTranslator.translator().addSource(DummyTranslator.INSTANCE);
+    assertEquals(Component.text("so valid").append(Component.translatable("test.2")), GlobalTranslator.render(input, Locale.UK));
+  }
+
   static class DummyTranslator implements Translator {
     static final DummyTranslator INSTANCE = new DummyTranslator();
 
@@ -120,10 +128,14 @@ class GlobalTranslatorTest {
 
     @Override
     public @Nullable Component translate(final @NotNull TranslatableComponent component, final @NotNull Locale locale) {
+      if (component.key().equals("test.1")) {
+        return Component.text("so valid").children(component.children());
+      }
+
       return (component.key().equals("otherDummy") && locale.equals(Locale.US))
         ? Component.text()
           .append(Component.text("Hello "))
-          .append(component.args().isEmpty() ? Component.text("{0}") : component.args().get(0))
+          .append(component.arguments().isEmpty() ? Component.text("{0}") : component.arguments().get(0))
           .append(Component.text("!"))
           .build()
         : null;

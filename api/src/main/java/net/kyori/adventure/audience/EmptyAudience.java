@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,8 @@ import net.kyori.adventure.identity.Identified;
 import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.inventory.Book;
 import net.kyori.adventure.pointer.Pointer;
+import net.kyori.adventure.resource.ResourcePackInfoLike;
+import net.kyori.adventure.resource.ResourcePackRequest;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
 import org.jetbrains.annotations.Contract;
@@ -116,6 +118,18 @@ final class EmptyAudience implements Audience {
 
   @Override
   public void openBook(final Book.@NotNull Builder book) {
+  }
+
+  @Override
+  public void sendResourcePacks(final @NotNull ResourcePackInfoLike request, final @NotNull ResourcePackInfoLike@NotNull... others) {
+  }
+
+  @Override
+  public void removeResourcePacks(final @NotNull ResourcePackRequest request) {
+  }
+
+  @Override
+  public void removeResourcePacks(final @NotNull ResourcePackInfoLike request, final @NotNull ResourcePackInfoLike@NotNull... others) {
   }
 
   @Override

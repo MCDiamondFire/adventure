@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -51,36 +51,42 @@ import net.kyori.adventure.text.SelectorComponent;
 import net.kyori.adventure.text.StorageNBTComponent;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
+import net.kyori.adventure.text.TranslationArgument;
+import net.kyori.adventure.text.serializer.json.JSONOptions;
+import net.kyori.option.OptionState;
 import org.jetbrains.annotations.Nullable;
 
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.EXTRA;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.KEYBIND;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.NBT;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.NBT_BLOCK;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.NBT_ENTITY;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.NBT_INTERPRET;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.NBT_STORAGE;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.SCORE;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.SCORE_NAME;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.SCORE_OBJECTIVE;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.SCORE_VALUE;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.SELECTOR;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.SEPARATOR;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.TEXT;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.TRANSLATE;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.TRANSLATE_FALLBACK;
-import static net.kyori.adventure.text.serializer.json.JSONComponentConstants.TRANSLATE_WITH;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.EXTRA;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.KEYBIND;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.NBT;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.NBT_BLOCK;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.NBT_ENTITY;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.NBT_INTERPRET;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.NBT_STORAGE;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.SCORE;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.SCORE_NAME;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.SCORE_OBJECTIVE;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.SCORE_VALUE;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.SELECTOR;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.SEPARATOR;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.TEXT;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.TRANSLATE;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.TRANSLATE_FALLBACK;
+import static net.kyori.adventure.text.serializer.commons.ComponentTreeConstants.TRANSLATE_WITH;
 
 final class ComponentSerializerImpl extends TypeAdapter<Component> {
   static final Type COMPONENT_LIST_TYPE = new TypeToken<List<Component>>() {}.getType();
+  static final Type TRANSLATABLE_ARGUMENT_LIST_TYPE = new TypeToken<List<TranslationArgument>>() {}.getType();
 
-  static TypeAdapter<Component> create(final Gson gson) {
-    return new ComponentSerializerImpl(gson).nullSafe();
+  static TypeAdapter<Component> create(final OptionState features, final Gson gson) {
+    return new ComponentSerializerImpl(features.value(JSONOptions.EMIT_COMPACT_TEXT_COMPONENT), gson).nullSafe();
   }
 
+  private final boolean emitCompactTextComponent;
   private final Gson gson;
 
-  private ComponentSerializerImpl(final Gson gson) {
+  private ComponentSerializerImpl(final boolean emitCompactTextComponent, final Gson gson) {
+    this.emitCompactTextComponent = emitCompactTextComponent;
     this.gson = gson;
   }
 
@@ -117,7 +123,7 @@ final class ComponentSerializerImpl extends TypeAdapter<Component> {
     String text = null;
     String translate = null;
     String translateFallback = null;
-    List<Component> translateWith = null;
+    List<TranslationArgument> translateWith = null;
     String scoreName = null;
     String scoreObjective = null;
     String scoreValue = null;
@@ -140,7 +146,7 @@ final class ComponentSerializerImpl extends TypeAdapter<Component> {
       } else if (fieldName.equals(TRANSLATE_FALLBACK)) {
         translateFallback = in.nextString();
       } else if (fieldName.equals(TRANSLATE_WITH)) {
-        translateWith = this.gson.fromJson(in, COMPONENT_LIST_TYPE);
+        translateWith = this.gson.fromJson(in, TRANSLATABLE_ARGUMENT_LIST_TYPE);
       } else if (fieldName.equals(SCORE)) {
         in.beginObject();
         while (in.hasNext()) {
@@ -187,7 +193,7 @@ final class ComponentSerializerImpl extends TypeAdapter<Component> {
       builder = Component.text().content(text);
     } else if (translate != null) {
       if (translateWith != null) {
-        builder = Component.translatable().key(translate).fallback(translateFallback).args(translateWith);
+        builder = Component.translatable().key(translate).fallback(translateFallback).arguments(translateWith);
       } else {
         builder = Component.translatable().key(translate).fallback(translateFallback);
       }
@@ -230,6 +236,16 @@ final class ComponentSerializerImpl extends TypeAdapter<Component> {
 
   @Override
   public void write(final JsonWriter out, final Component value) throws IOException {
+    if (
+      value instanceof TextComponent
+        && value.children().isEmpty()
+        && !value.hasStyling()
+        && this.emitCompactTextComponent
+    ) {
+      out.value(((TextComponent) value).content());
+      return;
+    }
+
     out.beginObject();
 
     if (value.hasStyling()) {
@@ -259,9 +275,9 @@ final class ComponentSerializerImpl extends TypeAdapter<Component> {
         out.name(TRANSLATE_FALLBACK);
         out.value(fallback);
       }
-      if (!translatable.args().isEmpty()) {
+      if (!translatable.arguments().isEmpty()) {
         out.name(TRANSLATE_WITH);
-        this.gson.toJson(translatable.args(), COMPONENT_LIST_TYPE, out);
+        this.gson.toJson(translatable.arguments(), TRANSLATABLE_ARGUMENT_LIST_TYPE, out);
       }
     } else if (value instanceof ScoreComponent) {
       final ScoreComponent score = (ScoreComponent) value;

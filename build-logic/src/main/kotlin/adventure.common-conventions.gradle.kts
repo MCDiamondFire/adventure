@@ -54,6 +54,7 @@ dependencies {
   testImplementation(libs.junit.api)
   testImplementation(libs.junit.engine)
   testImplementation(libs.junit.params)
+  testRuntimeOnly(libs.junit.launcher)
 }
 
 spotless {
@@ -89,7 +90,7 @@ tasks {
     dependsOn(test)
   }
   
-  withType(JavaCompile::class) {
+  withType(JavaCompile::class).configureEach {
     options.errorprone {
       disable("InvalidBlockTag") // we use custom block tags
       disable("InlineMeSuggester") // we don't use errorprone annotations

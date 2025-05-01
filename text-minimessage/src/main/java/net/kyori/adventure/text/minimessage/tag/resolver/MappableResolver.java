@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,8 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * Marker interface for resolvers that may handle a fixed domain of tags.
+ *
+ * @since 4.10.0
  */
 interface MappableResolver {
   /**

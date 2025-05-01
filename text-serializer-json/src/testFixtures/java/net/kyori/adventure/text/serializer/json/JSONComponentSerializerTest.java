@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2023 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,9 @@
 package net.kyori.adventure.text.serializer.json;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonParseException;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.commons.ComponentTreeConstants;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,8 +57,8 @@ final class JSONComponentSerializerTest extends SerializerTest {
         .build(),
       deserialize(
         array(array -> {
-          array.add(object(object -> object.addProperty(JSONComponentConstants.TEXT, "Hello, ")));
-          array.add(object(object -> object.addProperty(JSONComponentConstants.TEXT, "world.")));
+          array.add(object(object -> object.addProperty(ComponentTreeConstants.TEXT, "Hello, ")));
+          array.add(object(object -> object.addProperty(ComponentTreeConstants.TEXT, "world.")));
         })
       )
     );
@@ -65,18 +67,36 @@ final class JSONComponentSerializerTest extends SerializerTest {
   // https://github.com/KyoriPowered/adventure/issues/414
   @Test
   @SuppressWarnings("deprecation")
-  void testSkipInvalidHoverEvent() {
+  void testSkipInvalidHoverEventWhenLenient() {
+    final JSONComponentSerializer serializer = JSONComponentSerializer.builder()
+      .editOptions(b -> b.value(JSONOptions.VALIDATE_STRICT_EVENTS, false))
+      .build();
+
     final Component expected = Component.text("hello");
     assertEquals(
       expected,
-      deserialize(object(object -> {
-        object.addProperty(JSONComponentConstants.TEXT, "hello");
-        object.add(JSONComponentConstants.HOVER_EVENT, object(hover -> {
-          hover.addProperty(JSONComponentConstants.HOVER_EVENT_ACTION, "show_text");
-          hover.add(JSONComponentConstants.HOVER_EVENT_VALUE, new JsonArray());
+      deserialize(serializer, object(object -> {
+        object.addProperty(ComponentTreeConstants.TEXT, "hello");
+        object.add(ComponentTreeConstants.HOVER_EVENT_CAMEL, object(hover -> {
+          hover.addProperty(ComponentTreeConstants.HOVER_EVENT_ACTION, "show_text");
+          hover.add(ComponentTreeConstants.HOVER_EVENT_VALUE, new JsonArray());
         }));
       }))
     );
+  }
+
+  @Test
+  @SuppressWarnings("deprecation")
+  void testFailOnInvalidHoverEvents() {
+    assertThrows(JsonParseException.class, () -> {
+      deserialize(object(object -> {
+        object.addProperty(ComponentTreeConstants.TEXT, "hello");
+        object.add(ComponentTreeConstants.HOVER_EVENT_CAMEL, object(hover -> {
+          hover.addProperty(ComponentTreeConstants.HOVER_EVENT_ACTION, "show_text");
+          hover.add(ComponentTreeConstants.HOVER_EVENT_VALUE, new JsonArray());
+        }));
+      }));
+    });
   }
 
 }
