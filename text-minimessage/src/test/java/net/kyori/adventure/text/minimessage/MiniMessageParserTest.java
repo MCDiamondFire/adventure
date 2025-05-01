@@ -451,6 +451,7 @@ public class MiniMessageParserTest extends AbstractTest {
               }
               TextNode(' ')
             }
+            EmptyNode()
           }
         }
       }

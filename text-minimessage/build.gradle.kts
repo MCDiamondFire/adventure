@@ -15,6 +15,16 @@ dependencies {
 tasks.checkstyleJmh {
   exclude("**")
 }
+// DiamondFire start
+spotless {
+  java {
+    targetExclude(
+      "**/EmptyNode.java",
+      "**/MiniMessageParser.java"
+    )
+  }
+}
+// DiamondFire end
 
 tasks.javadoc {
   // TODO: I assume this is not welcome, but otherwise the javadoc task fails, so...
