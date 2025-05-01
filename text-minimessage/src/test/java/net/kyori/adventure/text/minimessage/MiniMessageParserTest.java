@@ -450,6 +450,7 @@ public class MiniMessageParserTest extends AbstractTest {
       "        }\n" +
       "        TextNode(' ')\n" +
       "      }\n" +
+      "      EmptyNode()\n" + //DiamondFire
       "    }\n" +
       "  }\n" +
       "}\n";

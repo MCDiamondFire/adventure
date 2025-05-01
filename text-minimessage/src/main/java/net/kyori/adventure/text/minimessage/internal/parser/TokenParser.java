@@ -398,7 +398,13 @@ public final class TokenParser {
     final RootNode root = new RootNode(message, originalMessage);
     ElementNode node = root;
 
+    // DiamondFire start
+    int j = 0;
+    final int size = tokens.size();
+    boolean endsWithReset = false;
+    // DiamondFire end
     for (final Token token : tokens) {
+      j++; // DiamondFire
       final TokenType type = token.type();
       switch (type) {
         case TEXT:
@@ -430,6 +436,7 @@ public final class TokenParser {
                 throw new ParsingExceptionImpl("<reset> tags are not allowed when strict mode is enabled", message, token);
               }
               node = root;
+              if (j == size) endsWithReset = true; // DiamondFire
             } else {
               // This is a recognized tag, goes in the tree
               tagNode.tag(tag);
@@ -505,6 +512,11 @@ public final class TokenParser {
           break;
       }
     }
+    // DiamondFire start
+    if (endsWithReset || tokens.get(tokens.size() - 1).type() == TokenType.CLOSE_TAG) {
+      node.addChild(new net.kyori.adventure.text.minimessage.internal.parser.node.EmptyNode(message));
+    }
+    // DiamondFire end
 
     if (strict && root != node) {
       final ArrayList<TagNode> openTags = new ArrayList<>();

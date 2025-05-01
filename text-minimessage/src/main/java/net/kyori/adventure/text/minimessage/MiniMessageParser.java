@@ -47,9 +47,48 @@ import net.kyori.examination.Examinable;
 import net.kyori.examination.string.MultiLineStringExaminer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+// DiamondFire start
+// CHECKSTYLE:OFF
+import java.lang.reflect.Constructor;
+import java.util.Collections;
+import java.util.Map;
+import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.event.ClickEvent;
+import net.kyori.adventure.text.event.HoverEvent;
+import net.kyori.adventure.text.format.Style;
+import net.kyori.adventure.text.format.TextColor;
+// CHECKSTYLE:ON
+// DiamondFire end
 
 final class MiniMessageParser {
   final TagResolver tagResolver;
+  // DiamondFire start
+  static Component empty;
+
+  static {
+    try {
+      // Create a new instance of empty style
+      final Class<?> sClazz = Class.forName("net.kyori.adventure.text.format.StyleImpl");
+      final Constructor<?> sConstructor = sClazz.getDeclaredConstructor(
+        Key.class,
+        TextColor.class,
+        Map.class,
+        ClickEvent.class,
+        HoverEvent.class,
+        String.class
+      );
+      sConstructor.setAccessible(true);
+      final Style style = (Style) sConstructor.newInstance(null, null, Collections.emptyMap(), null, null, null);
+      // Create a new instance of empty component
+      final Class<?> tClazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
+      final Constructor<?> tConstructor = tClazz.getDeclaredConstructor(List.class, Style.class, String.class);
+      tConstructor.setAccessible(true);
+      empty = (Component) tConstructor.newInstance(Collections.emptyList(), style, "");
+    } catch (final Exception e) {
+      // i know this is absolutely horrendous but please forgive me
+    }
+  }
+  // DiamondFire end
 
   MiniMessageParser() {
     this.tagResolver = TagResolver.standard();
@@ -215,6 +254,10 @@ final class MiniMessageParser {
     Tag tag = null;
     if (node instanceof ValueNode) {
       comp = Component.text(((ValueNode) node).value());
+    // DiamondFire start
+    } else if (node instanceof net.kyori.adventure.text.minimessage.internal.parser.node.EmptyNode) {
+      comp = empty;
+    // DiamondFire end
     } else if (node instanceof TagNode) {
       final TagNode tagNode = (TagNode) node;
 
