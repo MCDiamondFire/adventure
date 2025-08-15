@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,9 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+package net.kyori.adventure.dialog;
+
+import net.kyori.adventure.audience.Audience;
+
 /**
- * Holders of Named Binary Tags.
+ * Something that can be represented as a Dialog.
  *
- * @see <a href="https://minecraft.wiki/w/NBT_format">minecraft.wiki/w/NBT_format</a>
+ * <p>This interface exists to allow initial native support for dialogs until Adventure
+ * has full API to support building and sending dialogs.</p>
+ *
+ * @see Audience#showDialog(DialogLike)
+ * @since 4.22.0
+ * @sinceMinecraft 1.21.6
  */
-package net.kyori.adventure.nbt.api;
+public interface DialogLike {
+}

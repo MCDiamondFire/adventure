@@ -40,7 +40,7 @@ final class TagStringReader {
 
   private final CharBuffer buffer;
   private boolean acceptLegacy;
-  private boolean acceptHeterogenousLists;
+  private boolean acceptHeterogeneousLists;
   private int depth;
 
   TagStringReader(final CharBuffer buffer) {
@@ -64,7 +64,8 @@ final class TagStringReader {
   }
 
   public ListBinaryTag list() throws StringTagParseException {
-    final ListBinaryTag.Builder<BinaryTag> builder = ListBinaryTag.builder();
+    final ListBinaryTag.Builder<BinaryTag> builder = this.acceptHeterogeneousLists
+      ? ListBinaryTag.heterogeneousListBinaryTag() : ListBinaryTag.builder();
     this.buffer.expect(Tokens.ARRAY_BEGIN);
     final boolean prefixedIndex = this.acceptLegacy && this.buffer.peek() == '0' && this.buffer.peek(1) == ':';
     if (!prefixedIndex && this.buffer.takeIf(Tokens.ARRAY_END)) {
@@ -266,6 +267,10 @@ final class TagStringReader {
     // Determine the radix and strip its prefix if present
     final int radix = this.extractRadix(builder, original);
 
+    if (builder.length() == 0) {
+      throw this.buffer.makeError("Input is a radix, not a number");
+    }
+
     // Check for the sign before removing the type token because of hex number always needing a sign thanks to byte types
     final char last = builder.charAt(builder.length() - 1);
     boolean hasSignToken = false;
@@ -331,7 +336,11 @@ final class TagStringReader {
     if (first == '+' || first == '-') {
       radixPrefixOffset = 1;
     }
-    if (original.startsWith("0b", radixPrefixOffset) || original.startsWith("0B", radixPrefixOffset)) {
+
+    final int radixEndIndex = 2 + radixPrefixOffset;
+
+    // There should be more after '0b', else it would be a regular byte tag
+    if (original.length() > radixEndIndex && (original.startsWith("0b", radixPrefixOffset) || original.startsWith("0B", radixPrefixOffset))) {
       radix = BINARY_RADIX;
     } else if (original.startsWith("0x", radixPrefixOffset) || original.startsWith("0X", radixPrefixOffset)) {
       radix = HEX_RADIX;
@@ -339,7 +348,7 @@ final class TagStringReader {
       radix = DECIMAL_RADIX;
     }
     if (radix != DECIMAL_RADIX) {
-      builder.delete(radixPrefixOffset, 2 + radixPrefixOffset);
+      builder.delete(radixPrefixOffset, radixEndIndex);
     }
     return radix;
   }
@@ -431,5 +440,9 @@ final class TagStringReader {
 
   public void legacy(final boolean acceptLegacy) {
     this.acceptLegacy = acceptLegacy;
+  }
+
+  public void heterogeneousLists(final boolean acceptHeterogeneousLists) {
+    this.acceptHeterogeneousLists = acceptHeterogeneousLists;
   }
 }

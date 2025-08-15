@@ -1,7 +1,7 @@
 /*
  * This file is part of adventure, licensed under the MIT License.
  *
- * Copyright (c) 2017-2022 KyoriPowered
+ * Copyright (c) 2017-2025 KyoriPowered
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,8 +22,9 @@
  * SOFTWARE.
  */
 /**
- * Holders of Named Binary Tags.
+ * Dialogs.
  *
- * @see <a href="https://minecraft.wiki/w/NBT_format">minecraft.wiki/w/NBT_format</a>
+ * @sinceMinecraft 1.21.6
+ * @since 4.22
  */
-package net.kyori.adventure.nbt.api;
+package net.kyori.adventure.dialog;
