@@ -37,7 +37,8 @@ import org.jetbrains.annotations.VisibleForTesting;
 import static java.util.Objects.requireNonNull;
 
 class TextComponentImpl extends AbstractComponent implements TextComponent {
-  private static final boolean WARN_WHEN_LEGACY_FORMATTING_DETECTED = Boolean.TRUE.equals(AdventureProperties.TEXT_WARN_WHEN_LEGACY_FORMATTING_DETECTED.value());
+  // DiamondFire - Never warn when legacy formatting is detected
+  private static final boolean WARN_WHEN_LEGACY_FORMATTING_DETECTED = false;
   @VisibleForTesting
   static final char SECTION_CHAR = '§';
 
