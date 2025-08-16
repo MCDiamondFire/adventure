@@ -35,7 +35,7 @@ import org.jspecify.annotations.Nullable;
 import static java.util.Objects.requireNonNull;
 
 sealed class TextComponentImpl implements TextComponent permits VirtualComponentImpl {
-  private static final boolean WARN_WHEN_LEGACY_FORMATTING_DETECTED = Boolean.TRUE.equals(AdventureProperties.TEXT_WARN_WHEN_LEGACY_FORMATTING_DETECTED.value());
+  private static final boolean WARN_WHEN_LEGACY_FORMATTING_DETECTED = false; // Boolean.TRUE.equals(AdventureProperties.TEXT_WARN_WHEN_LEGACY_FORMATTING_DETECTED.value()) DiamondFire - Force disable
   @VisibleForTesting
   static final char SECTION_CHAR = '§';
 

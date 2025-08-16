@@ -52,21 +52,22 @@ record MiniMessageParser(TagResolver tagResolver) {
     try {
       // Create a new instance of empty style
       final Class<?> sClazz = Class.forName("net.kyori.adventure.text.format.StyleImpl");
-      final Constructor<?> sConstructor = sClazz.getDeclaredConstructor(
-        Key.class,
-        TextColor.class,
-        Map.class,
-        ClickEvent.class,
-        HoverEvent.class,
+      final java.lang.reflect.Constructor<?> sConstructor = sClazz.getDeclaredConstructor(
+        net.kyori.adventure.key.Key.class,
+        net.kyori.adventure.text.format.TextColor.class,
+        net.kyori.adventure.text.format.ShadowColor.class,
+        java.util.Map.class,
+        net.kyori.adventure.text.event.ClickEvent.class,
+        net.kyori.adventure.text.event.HoverEvent.class,
         String.class
       );
       sConstructor.setAccessible(true);
-      final Style style = (Style) sConstructor.newInstance(null, null, Collections.emptyMap(), null, null, null);
+      final net.kyori.adventure.text.format.Style style = (net.kyori.adventure.text.format.Style) sConstructor.newInstance(null, null, null, java.util.Collections.emptyMap(), null, null, null);
       // Create a new instance of empty component
       final Class<?> tClazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
-      final Constructor<?> tConstructor = tClazz.getDeclaredConstructor(List.class, Style.class, String.class);
+      final java.lang.reflect.Constructor<?> tConstructor = tClazz.getDeclaredConstructor(java.util.List.class, net.kyori.adventure.text.format.Style.class, String.class);
       tConstructor.setAccessible(true);
-      empty = (Component) tConstructor.newInstance(Collections.emptyList(), style, "");
+      empty = (Component) tConstructor.newInstance(java.util.Collections.emptyList(), style, "");
     } catch (final Exception e) {
       // i know this is absolutely horrendous but please forgive me
     }
