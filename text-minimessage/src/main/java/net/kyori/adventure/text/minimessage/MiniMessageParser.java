@@ -57,6 +57,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.format.ShadowColor;
 // CHECKSTYLE:ON
 // DiamondFire end
 
@@ -72,13 +73,14 @@ final class MiniMessageParser {
       final Constructor<?> sConstructor = sClazz.getDeclaredConstructor(
         Key.class,
         TextColor.class,
+        ShadowColor.class,
         Map.class,
         ClickEvent.class,
         HoverEvent.class,
         String.class
       );
       sConstructor.setAccessible(true);
-      final Style style = (Style) sConstructor.newInstance(null, null, Collections.emptyMap(), null, null, null);
+      final Style style = (Style) sConstructor.newInstance(null, null, null, Collections.emptyMap(), null, null, null);
       // Create a new instance of empty component
       final Class<?> tClazz = Class.forName("net.kyori.adventure.text.TextComponentImpl");
       final Constructor<?> tConstructor = tClazz.getDeclaredConstructor(List.class, Style.class, String.class);
