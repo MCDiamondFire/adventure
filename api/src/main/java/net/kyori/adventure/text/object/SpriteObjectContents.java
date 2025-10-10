@@ -21,14 +21,52 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.adventure.text;
+package net.kyori.adventure.text.object;
 
-import net.kyori.adventure.util.Nag;
+import java.util.stream.Stream;
+import net.kyori.adventure.key.Key;
+import net.kyori.examination.ExaminableProperty;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 
-final class LegacyFormattingDetected extends Nag {
-  private static final long serialVersionUID = -947793022628807411L;
+/**
+ * A sprite contents.
+ *
+ * <p>Represents a sprite in an atlas, such as a block texture.</p>
+ *
+ * @since 4.25.0
+ * @sinceMinecraft 1.21.9
+ */
+@ApiStatus.NonExtendable
+public interface SpriteObjectContents extends ObjectContents {
+  /**
+   * The default atlas key for sprites, used by vanilla when the atlas is not specified in a serialized object component.
+   *
+   * @since 4.25.0
+   */
+  Key DEFAULT_ATLAS = Key.key("minecraft:blocks");
 
-  LegacyFormattingDetected(final Component component) {
-    super("Legacy formatting codes have been detected in a component - this is unsupported behaviour. Please refer to the Adventure documentation (https://docs.papermc.io/adventure/) for more information. Component: " + component);
+  /**
+   * Gets the atlas key.
+   *
+   * @return the atlas key
+   * @since 4.25.0
+   */
+  @NotNull Key atlas();
+
+  /**
+   * Gets the sprite key.
+   *
+   * @return the sprite key
+   * @since 4.25.0
+   */
+  @NotNull Key sprite();
+
+  @Override
+  default @NotNull Stream<? extends ExaminableProperty> examinableProperties() {
+    return Stream.of(
+      ExaminableProperty.of("atlas", this.atlas()),
+      ExaminableProperty.of("sprite", this.sprite())
+    );
   }
 }

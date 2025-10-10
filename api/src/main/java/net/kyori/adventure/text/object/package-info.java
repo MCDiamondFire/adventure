@@ -21,14 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.adventure.text;
-
-import net.kyori.adventure.util.Nag;
-
-final class LegacyFormattingDetected extends Nag {
-  private static final long serialVersionUID = -947793022628807411L;
-
-  LegacyFormattingDetected(final Component component) {
-    super("Legacy formatting codes have been detected in a component - this is unsupported behaviour. Please refer to the Adventure documentation (https://docs.papermc.io/adventure/) for more information. Component: " + component);
-  }
-}
+/**
+ * Types related to {@link net.kyori.adventure.text.ObjectComponent}.
+ */
+package net.kyori.adventure.text.object;

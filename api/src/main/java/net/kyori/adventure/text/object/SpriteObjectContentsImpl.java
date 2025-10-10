@@ -21,61 +21,51 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.adventure.text.minimessage.tag.resolver;
+package net.kyori.adventure.text.object;
 
-import java.util.Map;
 import java.util.Objects;
-import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.internal.Internals;
+import net.kyori.adventure.key.Key;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-final class SingleResolver implements TagResolver.Single, MappableResolver {
-  private final String key;
-  private final Tag tag;
+final class SpriteObjectContentsImpl implements SpriteObjectContents {
+  private final Key atlas;
+  private final Key sprite;
 
-  SingleResolver(final String key, final Tag tag) {
-    this.key = key;
-    this.tag = tag;
+  SpriteObjectContentsImpl(final @NotNull Key atlas, final @NotNull Key sprite) {
+    this.atlas = atlas;
+    this.sprite = sprite;
   }
 
   @Override
-  public @NotNull String key() {
-    return this.key;
+  public @NotNull Key atlas() {
+    return this.atlas;
   }
 
   @Override
-  public @NotNull Tag tag() {
-    return this.tag;
+  public @NotNull Key sprite() {
+    return this.sprite;
   }
 
   @Override
-  public boolean has(final @NotNull String name) {
-    return this.key.equals(name);
-  }
-
-  @Override
-  public boolean contributeToMap(final @NotNull Map<String, Tag> map) {
-    map.put(this.key, this.tag);
-    return true;
+  public boolean equals(final @Nullable Object other) {
+    if (this == other) return true;
+    if (!(other instanceof SpriteObjectContents)) return false;
+    final SpriteObjectContentsImpl that = (SpriteObjectContentsImpl) other;
+    return Objects.equals(this.atlas, that.atlas())
+      && Objects.equals(this.sprite, that.sprite());
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.key, this.tag);
+    int result = this.atlas.hashCode();
+    result = (31 * result) + this.sprite.hashCode();
+    return result;
   }
 
   @Override
-  public boolean equals(final Object other) {
-    if (this == other) {
-      return true;
-    }
-    if (other == null) {
-      return false;
-    }
-    if (this.getClass() != other.getClass()) {
-      return false;
-    }
-    final SingleResolver that = (SingleResolver) other;
-    return Objects.equals(this.key, that.key)
-      && Objects.equals(this.tag, that.tag);
+  public String toString() {
+    return Internals.toString(this);
   }
 }

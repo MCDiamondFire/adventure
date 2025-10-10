@@ -55,6 +55,8 @@ public final class ClickEvent implements Examinable, StyleBuilderApplicable {
   /**
    * Creates a click event that opens a url.
    *
+   * <p>Since <em>Minecraft: Java Edition</em> 1.21.5 the url will fail to parse if not a {@code http://} or {@code https://} scheme.</p>
+   *
    * @param url the url to open
    * @return a click event
    * @since 4.0.0
@@ -239,7 +241,8 @@ public final class ClickEvent implements Examinable, StyleBuilderApplicable {
    * @return a click event
    * @throws IllegalArgumentException if the action does not support a string payload
    * @since 4.0.0
-   * @deprecated For removal since 4.22.0, not all actions support string payloads
+   * @deprecated For removal since 4.22.0, not all actions support string payloads.
+   *     Use {@link #clickEvent(Action, Payload)} or the event-specific methods.
    */
   @Deprecated
   public static @NotNull ClickEvent clickEvent(final @NotNull Action action, final @NotNull String value) {
@@ -247,6 +250,19 @@ public final class ClickEvent implements Examinable, StyleBuilderApplicable {
     if (action == Action.CHANGE_PAGE) return changePage(value);
     if (!action.payloadType().equals(Payload.Text.class)) throw new IllegalArgumentException("Action " + action + " does not support string payloads");
     return new ClickEvent(action, Payload.string(value));
+  }
+
+  /**
+   * Creates a click event with a {@link Payload payload}.
+   *
+   * @param action the action
+   * @param payload the payload
+   * @return a click event
+   * @throws IllegalArgumentException if the action does not support that payload
+   * @since 4.25.0
+   */
+  public static @NotNull ClickEvent clickEvent(final @NotNull Action action, final @NotNull Payload payload) {
+    return new ClickEvent(action, payload);
   }
 
   private final Action action;
