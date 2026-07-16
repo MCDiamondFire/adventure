@@ -36,7 +36,7 @@ import org.jspecify.annotations.Nullable;
  *
  * @since 4.10.0
  */
-public sealed class ElementNode implements Node permits RootNode, TagNode, ValueNode {
+public sealed class ElementNode implements Node permits RootNode, TagNode, ValueNode, EmptyNode { // DiamondFire - Empty node
   private final @Nullable ElementNode parent;
   private final @Nullable Token token;
   private final String sourceMessage;
