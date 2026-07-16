@@ -25,7 +25,6 @@ package net.kyori.adventure.text;
 
 import java.util.List;
 import java.util.Objects;
-import net.kyori.adventure.internal.properties.AdventureProperties;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.util.Nag;
 import org.jetbrains.annotations.Unmodifiable;
