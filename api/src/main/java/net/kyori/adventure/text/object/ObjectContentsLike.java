@@ -21,15 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package net.kyori.adventure.util;
+package net.kyori.adventure.text.object;
 
-import java.util.ServiceLoader;
+import org.jetbrains.annotations.Contract;
 
-final class Services0 {
-  private Services0() {
-  }
-
-  static <S> ServiceLoader<S> loader(final Class<S> type) {
-    return ServiceLoader.load(type, type.getClassLoader());
-  }
+/**
+ * Something that can be represented as an {@link ObjectContents}.
+ *
+ * @since 5.2.0
+ */
+public interface ObjectContentsLike {
+  /**
+   * Gets an {@link ObjectContents} representation.
+   *
+   * @return the object contents
+   * @since 5.2.0
+   */
+  @Contract(pure = true)
+  ObjectContents asObjectContents();
 }

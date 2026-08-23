@@ -18,14 +18,14 @@ jobs:
     uses: "KyoriPowered/ci-cookbook/.github/workflows/java-ci.yaml@f3b9a3fbb31e9f4320d855e7be17b028522e87be" # 2026.02.07
     with:
       publish_releases: false # DiamondFire - don't publish releases
-      publish_release_javadoc: false # DiamondFire - don't publish releases
-      runtime_version: 21
+      publish_release_javadoc: false
+      runtime_version: 25
     secrets:
       DEPLOYMENT_APP_ID: "${{ secrets.DEPLOYMENT_APP_ID }}"
       DEPLOYMENT_APP_SECRET: "${{ secrets.DEPLOYMENT_APP_SECRET }}"
       publishing_env_vars: |
           ORG_GRADLE_PROJECT_sonatypeUsername="${{ secrets.ADVENTURE_SONATYPE_USERNAME }}"
           ORG_GRADLE_PROJECT_sonatypePassword="${{ secrets.ADVENTURE_SONATYPE_PASSWORD }}"
-          ORG_GRADLE_PROJECT_kyoriSigningKey="${{ secrets.ADVENTURE_GPG_KEY }}"
-          ORG_GRADLE_PROJECT_kyoriSigningPassword="${{ secrets.ADVENTURE_GPG_PASSWORD }}"
+          ORG_GRADLE_PROJECT_paperSigningKey="${{ secrets.PAPERMC_GPG_KEY }}"
+          ORG_GRADLE_PROJECT_paperSigningPassword="${{ secrets.PAPERMC_GPG_PASSWORD }}"
 

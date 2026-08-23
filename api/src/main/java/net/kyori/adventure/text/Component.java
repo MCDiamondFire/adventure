@@ -50,6 +50,8 @@ import net.kyori.adventure.text.format.StyleSetter;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.object.ObjectContents;
+import net.kyori.adventure.text.object.ObjectContentsLike;
+import net.kyori.adventure.text.object.PlayerHeadObjectContents;
 import net.kyori.adventure.text.serializer.ComponentSerializer;
 import net.kyori.adventure.translation.Translatable;
 import net.kyori.adventure.util.ARGBLike;
@@ -106,7 +108,8 @@ import static java.util.Objects.requireNonNull;
  * @see LinearComponents
  * @since 4.0.0
  */
-public sealed interface Component extends ComponentBuilderApplicable, ComponentLike, HoverEventSource<Component>, StyleGetter, StyleSetter<Component> permits NBTComponent, ScopedComponent {
+@SuppressWarnings("removal")
+public sealed interface Component extends ComponentBuilderApplicable, ComponentLike, HoverEventSource<Component>, StyleGetter, StyleSetter<Component> permits BuildableComponent, ScopedComponent {
   /**
    * A predicate that checks equality of two {@code Component}s using {@link Objects#equals(Object, Object)}.
    *
@@ -326,7 +329,7 @@ public sealed interface Component extends ComponentBuilderApplicable, ComponentL
    */
   @Contract(value = "_, _, _, _ -> new", pure = true)
   static BlockNBTComponent blockNBT(final String nbtPath, final boolean interpret, final @Nullable ComponentLike separator, final BlockNBTComponent.Pos pos) {
-    return BlockNBTComponentImpl.create(List.of(), Style.empty(), nbtPath, interpret, separator, pos);
+    return BlockNBTComponentImpl.create(List.of(), Style.empty(), nbtPath, interpret, separator, pos, NBTComponent.PLAIN_DEFAULT);
   }
 
   /*
@@ -564,13 +567,29 @@ public sealed interface Component extends ComponentBuilderApplicable, ComponentL
   /**
    * Creates an object component with the given contents.
    *
+   * @param objectContentsLike the contents
+   * @return an object component
+   * @since 5.2.0
+   */
+  @Contract(value = "_ -> new", pure = true)
+  static ObjectComponent object(final ObjectContentsLike objectContentsLike) {
+    if (requireNonNull(objectContentsLike, "objectContentsLike") instanceof PlayerHeadObjectContents.SkinSource skinSource) {
+      return object(ObjectContents.playerHead(skinSource));
+    } else {
+      return object(objectContentsLike.asObjectContents());
+    }
+  }
+
+  /**
+   * Creates an object component with the given contents.
+   *
    * @param objectContents the contents
    * @return an object component
    * @since 4.25.0
    */
   @Contract(value = "_ -> new", pure = true)
   static ObjectComponent object(final ObjectContents objectContents) {
-    return ObjectComponentImpl.create(List.of(), Style.empty(), objectContents);
+    return ObjectComponentImpl.create(List.of(), Style.empty(), objectContents, null);
   }
 
   /*
@@ -753,7 +772,7 @@ public sealed interface Component extends ComponentBuilderApplicable, ComponentL
    */
   @Contract(value = "_, _, _, _ -> new", pure = true)
   static StorageNBTComponent storageNBT(final String nbtPath, final boolean interpret, final @Nullable ComponentLike separator, final Key storage) {
-    return StorageNBTComponentImpl.create(List.of(), Style.empty(), nbtPath, interpret, separator, storage);
+    return StorageNBTComponentImpl.create(List.of(), Style.empty(), nbtPath, interpret, separator, storage, NBTComponent.PLAIN_DEFAULT);
   }
 
   /*

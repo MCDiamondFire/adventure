@@ -31,6 +31,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
@@ -57,7 +58,7 @@ final class LegacyComponentSerializerImpl implements LegacyComponentSerializer {
   private static final TextDecoration[] DECORATIONS = TextDecoration.values();
   private static final char LEGACY_BUNGEE_HEX_CHAR = 'x';
 
-  private static final Optional<Provider> SERVICE = Services.service(Provider.class);
+  private static final Optional<Provider> SERVICE = Services.service(ServiceLoader.load(Provider.class, Provider.class.getClassLoader()), Provider.class);
   static final Consumer<Builder> BUILDER = SERVICE
     .map(Provider::legacy)
     .orElseGet(() -> builder -> {
@@ -202,7 +203,7 @@ final class LegacyComponentSerializerImpl implements LegacyComponentSerializer {
   private TextComponent extractUrl(final TextComponent component) {
     if (this.urlReplacementConfig == null) return component;
     final Component newComponent = component.replaceText(this.urlReplacementConfig);
-    if (newComponent instanceof TextComponent) return (TextComponent) newComponent;
+    if (newComponent instanceof TextComponent tc) return tc;
     return Component.text().append(newComponent).build();
   }
 
@@ -374,7 +375,7 @@ final class LegacyComponentSerializerImpl implements LegacyComponentSerializer {
         this.decorations.addAll(that.decorations);
       }
 
-      public void clear() {
+      private void clear() {
         this.color = null;
         this.decorations.clear();
       }
@@ -393,6 +394,7 @@ final class LegacyComponentSerializerImpl implements LegacyComponentSerializer {
                 this.needsReset = true;
               }
             }
+            case NOT_SET -> { } // do nothing
           }
         }
       }

@@ -23,6 +23,8 @@
  */
 package net.kyori.adventure.text.serializer.commons;
 
+import org.jetbrains.annotations.ApiStatus;
+
 /**
  * Constants to aid in the creation and testing of tree-based component serializers.
  *
@@ -36,13 +38,14 @@ public final class ComponentTreeConstants {
   public static final String SCORE = "score";
   public static final String SCORE_NAME = "name";
   public static final String SCORE_OBJECTIVE = "objective";
-  @Deprecated
+  @ApiStatus.Obsolete
   public static final String SCORE_VALUE = "value";
   public static final String SELECTOR = "selector";
   public static final String KEYBIND = "keybind";
   public static final String EXTRA = "extra";
   public static final String NBT = "nbt";
   public static final String NBT_INTERPRET = "interpret";
+  public static final String NBT_PLAIN = "plain";
   public static final String NBT_BLOCK = "block";
   public static final String NBT_ENTITY = "entity";
   public static final String NBT_STORAGE = "storage";
@@ -55,6 +58,7 @@ public final class ComponentTreeConstants {
   public static final String OBJECT_PLAYER_ID = "id";
   public static final String OBJECT_PLAYER_PROPERTIES = "properties";
   public static final String OBJECT_PLAYER_TEXTURE = "texture";
+  public static final String OBJECT_FALLBACK = "fallback";
   public static final String PROFILE_PROPERTY_NAME = "name";
   public static final String PROFILE_PROPERTY_VALUE = "value";
   public static final String PROFILE_PROPERTY_SIGNATURE = "signature";
@@ -62,7 +66,7 @@ public final class ComponentTreeConstants {
   public static final String COLOR = "color";
   public static final String SHADOW_COLOR = "shadow_color";
   public static final String INSERTION = "insertion";
-  @Deprecated
+  @ApiStatus.Obsolete
   public static final String CLICK_EVENT_CAMEL = "clickEvent";
   public static final String CLICK_EVENT_SNAKE = "click_event";
   public static final String CLICK_EVENT_ACTION = "action";
@@ -73,24 +77,25 @@ public final class ComponentTreeConstants {
   public static final String CLICK_EVENT_PAGE = "page";
   public static final String CLICK_EVENT_ID = "id";
   public static final String CLICK_EVENT_PAYLOAD = "payload";
-  @Deprecated
+  @ApiStatus.Obsolete
   public static final String HOVER_EVENT_CAMEL = "hoverEvent";
   public static final String HOVER_EVENT_SNAKE = "hover_event";
   public static final String HOVER_EVENT_ACTION = "action";
-  @Deprecated
+  @ApiStatus.Obsolete
   public static final String HOVER_EVENT_CONTENTS = "contents";
-  @Deprecated
+  @ApiStatus.Obsolete
   public static final String HOVER_EVENT_VALUE = "value";
-  @Deprecated
+  @ApiStatus.Obsolete
   public static final String SHOW_ENTITY_TYPE = "type";
   public static final String SHOW_ENTITY_ID = "id";
   public static final String SHOW_ENTITY_UUID = "uuid";
   public static final String SHOW_ENTITY_NAME = "name";
   public static final String SHOW_ITEM_ID = "id";
   public static final String SHOW_ITEM_COUNT = "count";
-  @Deprecated
+  @ApiStatus.Obsolete
   public static final String SHOW_ITEM_TAG = "tag";
   public static final String SHOW_ITEM_COMPONENTS = "components";
+  public static final String NULL = "null";
 
   private ComponentTreeConstants() {
     throw new IllegalStateException("Cannot instantiate");
