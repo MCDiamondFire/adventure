@@ -51,5 +51,5 @@ public @Pattern(TagPattern.TAG_NAME_REGEX) @interface TagPattern {
    *
    * @since 5.0.0
    */
-  @RegExp String TAG_NAME_REGEX = "[!?#]?[a-z0-9_-]*";
+  @RegExp String TAG_NAME_REGEX = "[!?#]?[a-z0-9&§_-]*"; // DiamondFire
 }
